@@ -1,6 +1,6 @@
 // **********************************************************************
 // PUCRS/FACIN
-// Programa de testes para manipulaÃ§Ã£o de Imagens
+// Programa de testes para manipulação de Imagens
 //
 // Marcio Sarroglia Pinho
 //
@@ -13,7 +13,8 @@
 
 #include <iostream>
 #include <cmath>
-
+#include <stdio.h>
+#include <stdlib.h>
 using namespace std;
 
 #ifdef __APPLE__
@@ -30,6 +31,58 @@ Temporizador T;
 const int LIMIAR = 100;
 #define LARGURA_JAN 1000
 #define ALTURA_JAN 500
+
+typedef struct // Cria uma STRUCT para armazenar os dados do histograma
+{
+     int vetor[255]; //a propria posição do vetor é a intensidade, o vetor armazena a quantidade
+} Histograma;
+
+Histograma hist;
+// **********************************************************************
+//  Cria o Histograma dependendo da imagem
+// **********************************************************************
+void PegaIntensidade(){
+    double intensidade;
+    for(int x = 0; x <= Image.SizeX(); x++){
+        for(int y = 0; y <= Image.SizeY(); y++){
+           intensidade = Image.GetPointIntensity(x,y);
+           if(intensidade >= 10){ //ignora os pertos de 0(preto)
+              hist.vetor[(int)intensidade] = hist.vetor[(int)intensidade] + 1;
+              //printf("%f --- %f   ", intensidade, (double)hist.vetor[(int)intensidade]);
+           }
+        }
+    }
+    printf("Termino cria hitograma");
+}
+
+void DesenhaHistograma(){
+    NewImage.DrawLineH(15,15,NewImage.SizeX()-10,0,0,0); //eixo X
+    NewImage.DrawLineV(15,15,NewImage.SizeY()-10,0,0,0); //eixo Y
+    int intensidade;
+    int xinicial = 15;
+
+    printf("Tamanho: %d\n\n",NewImage.SizeX()-25);
+
+    for(int i=0;i<255;i++){
+        intensidade = hist.vetor[i];
+        intensidade = intensidade/5;
+        if(intensidade>15){
+            NewImage.DrawLineV(xinicial,15,intensidade,0,0,0);
+            xinicial = xinicial + 3;
+        }
+    }
+    glutPostRedisplay();
+}
+
+void CriaHistograma(){
+    for(int i = 0; i <= 255;i++){ //zera as posições do histograma para nao pegar sujeira
+        hist.vetor[i] = 0;
+    }
+    PegaIntensidade();
+    DesenhaHistograma();
+}
+
+
 // **********************************************************************
 //  void ConvertBlackAndWhite()
 // **********************************************************************
@@ -38,7 +91,7 @@ void ConvertBlackAndWhite()
     unsigned char r,g,b;
     int x,y;
     int i;
-    
+
     cout << "Iniciou Black & White....";
 
     for(x=0; x<Image.SizeX(); x++)
@@ -203,14 +256,15 @@ void init()
 {
     int r;
     // Carrega a uma imagem
-    r = Image.Load("Falcao.jpg"); // Carrega uma imagem
+    r = Image.Load("fatia01.bmp"); // Carrega uma imagem
 
     if (!r) exit(1); // Erro na carga da imagem
     else cout << ("Imagem carregada!\n");
 
     // Ajusta o tamanho da imagem da direita, para que ela
     // passe a ter o mesmo tamnho da imagem recem carregada
-    // Caso precise alterar o tamanho da nova imagem, mude os parÃ¢metros
+    //
+    //Caso precise alterar o tamanho da nova imagem, mude os parâmetros
     // da na chamada abaixo
     NewImage.SetSize(Image.SizeX(), Image.SizeY(), Image.Channels());
     cout << "Nova Imagem Criada" << endl;
@@ -293,28 +347,32 @@ void keyboard ( unsigned char key, int x, int y )
     case '2':
 //        ConvertBlackAndWhite(220, 255);
         ConvertBlackAndWhite();
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'g':
         ConvertToGrayscale();
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
 
     case 'b':
         DetectImageBorders();
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'i':
         InvertImage();
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'm':
         Mediana();
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'c':
         NewImage.CopyTo(&Image);
-        glutPostRedisplay();    // obrigatÃ³rio para redesenhar a tela
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
+        break;
+    case 'h':
+        CriaHistograma();
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     default:
         break;
@@ -364,7 +422,7 @@ int main ( int argc, char** argv )
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
     glutInitWindowPosition (10,10);
 
-    // Define o tamanho da janela grÃ¡fica do programa
+    // Define o tamanho da janela gráfica do programa
     glutInitWindowSize  ( LARGURA_JAN, ALTURA_JAN);
     glutCreateWindow    ( "Image Loader" );
 

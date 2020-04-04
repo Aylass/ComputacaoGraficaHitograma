@@ -464,9 +464,11 @@
 1584988348 source:d:\pinho\imageclass\temporizador.cpp
 	"Temporizador.h"
 
-1584990000 source:g:\1universidade\computação grafica\entrega dia 12\histograma\pamelamendonca\imageclass\exemplodemanipulacaodeimagens.cpp
+1586034898 source:g:\1universidade\computação grafica\entrega dia 12\histograma\pamelamendonca\imageclass\exemplodemanipulacaodeimagens.cpp
 	<iostream>
 	<cmath>
+	<stdio.h>
+	<stdlib.h>
 	<GLUT/glut.h>
 	"ImageClass.h"
 	"Temporizador.h"
