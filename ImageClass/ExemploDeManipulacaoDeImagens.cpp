@@ -55,10 +55,11 @@ void PegaIntensidade(){
     //printf("Termino cria hitograma");
 }
 
-void PegaIntensidadedoRetangulo(int x1,int y1,int x2, int y2,int x3,int y3, int x4, int y4){ //recebe um retangulo como ponto
+void PegaIntensidadedoRetangulo(int x1,int y1,int x2, int y2,int x3,int y3, int x4, int y4){ //recebe um retangulo como ponto  1   2
+                                                                                                                    //         3   4
     double intensidade;
-    for(int x = 0; x <= Image.SizeX(); x++){
-        for(int y = 0; y <= Image.SizeY(); y++){
+    for(int x = x1; x <= x2; x++){
+        for(int y = y1; y <= y3; y++){
            intensidade = Image.GetPointIntensity(x,y);
            if(intensidade >= 10){ //ignora os pertos de 0(preto)
               hist.vetor[(int)intensidade] = hist.vetor[(int)intensidade] + 1;
@@ -80,6 +81,25 @@ void DesenhaHistograma(){
     for(int i=0;i<255;i++){
         intensidade = hist.vetor[i];
         intensidade = intensidade/5;
+        if(intensidade>15){
+            NewImage.DrawLineV(xinicial,15,intensidade,0,0,0);
+            xinicial = xinicial + 3;
+        }
+    }
+    glutPostRedisplay();
+}
+
+void DesenhaHistogramaRetangulo(){
+    NewImage.DrawLineH(15,15,NewImage.SizeX()-10,0,0,0); //eixo X
+    NewImage.DrawLineV(15,15,NewImage.SizeY()-10,0,0,0); //eixo Y
+    int intensidade;
+    int xinicial = 15;
+
+    printf("Tamanho: %d\n\n",NewImage.SizeX()-25);
+
+    for(int i=0;i<255;i++){
+        intensidade = hist.vetor[i];
+        intensidade = intensidade;
         if(intensidade>15){
             NewImage.DrawLineV(xinicial,15,intensidade,0,0,0);
             xinicial = xinicial + 3;
@@ -140,11 +160,29 @@ void Mediana(int qantpixel){ //altera entre 3,7,9 pixels usados
     DesenhaHistograma();
 }
 
+void DesenhaRetangulo(int x1,int y1,int x2, int y2,int x3,int y3, int x4, int y4){
+    Image.DrawLineH(y1,x1,x2,255,255,255); //eixo X
+    Image.DrawLineH(y3,x3,x4,255,255,255); //eixo X
+    Image.DrawLineV(x1,y1,y4,255,255,255); //eixo Y
+    Image.DrawLineV(x4,y4,y2,255,255,255); //eixo Y
+     glutPostRedisplay();
+     PegaIntensidadedoRetangulo(x1,y1,x2,y2,x3,y3,x4,y4);
+}
+
+void CriaHistogramaRetangulo(){
+    for(int i = 0; i <= 255;i++){ //zera as posições do histograma para nao pegar sujeira
+        hist.vetor[i] = 0;
+    }
+    DesenhaRetangulo(150,150,230,150,150,200,230,200);
+    DesenhaHistogramaRetangulo();
+}
+
 void CriaHistograma(){
     for(int i = 0; i <= 255;i++){ //zera as posições do histograma para nao pegar sujeira
         hist.vetor[i] = 0;
     }
     PegaIntensidade();
+    //DesenhaRetangulo(150,150,230,150,150,200,230,200);
     DesenhaHistograma();
 }
 
@@ -431,6 +469,10 @@ void keyboard ( unsigned char key, int x, int y )
         break;
     case 'h':
         CriaHistograma();
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
+        break;
+    case 'r':
+        CriaHistogramaRetangulo();
         glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     default:
