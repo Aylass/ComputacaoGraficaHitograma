@@ -52,7 +52,21 @@ void PegaIntensidade(){
            }
         }
     }
-    printf("Termino cria hitograma");
+    //printf("Termino cria hitograma");
+}
+
+void PegaIntensidadedoRetangulo(int x1,int y1,int x2, int y2,int x3,int y3, int x4, int y4){ //recebe um retangulo como ponto
+    double intensidade;
+    for(int x = 0; x <= Image.SizeX(); x++){
+        for(int y = 0; y <= Image.SizeY(); y++){
+           intensidade = Image.GetPointIntensity(x,y);
+           if(intensidade >= 10){ //ignora os pertos de 0(preto)
+              hist.vetor[(int)intensidade] = hist.vetor[(int)intensidade] + 1;
+              //printf("%f --- %f   ", intensidade, (double)hist.vetor[(int)intensidade]);
+           }
+        }
+    }
+    //printf("Termino cria hitograma");
 }
 
 void DesenhaHistograma(){
@@ -72,6 +86,58 @@ void DesenhaHistograma(){
         }
     }
     glutPostRedisplay();
+}
+
+
+void Mediana(int qantpixel){ //altera entre 3,7,9 pixels usados
+    PegaIntensidade();
+    int vetmed[qantpixel];
+    int teste[] = {2,80,6,2,5};
+   // printf("Vetor inicial");
+     //for(int u = 0; u < 5;u++){
+    //printf("%d,  ",teste[u]);
+// }
+
+    //usado para exluir os pixels da ponta de serem o foco do algoritmo
+    int kk; //posição do pixel do meio
+    if(qantpixel == 3) {kk = 1;}
+    if(qantpixel == 7) {kk = 3;}
+    if(qantpixel == 9) {kk=4;}
+    int j = 0;
+    int ii = 0;
+    int mediana = 0;
+    for(int i = 0; i < 255 - kk;i++){
+        j = 0;
+        ii = i;
+        while(j<qantpixel){//povoa o sub vetor
+            vetmed[j] = hist.vetor[ii];
+            //vetmed[j] = teste[ii];
+            j++;
+            ii++;
+        }
+        //organiza o vetor
+        int a,b;
+        for(int p = 0; p < qantpixel;p++){
+            for(int pp = 0; pp < qantpixel;pp++){
+                if(vetmed[pp]>vetmed[p]){
+                    //troca
+                    a = vetmed[pp];
+                    b = vetmed[p];
+                    vetmed[pp] = b;
+                    vetmed[p] = a;
+                }
+            }
+        }
+        /*printf("Vetor Ordenado:");
+         for(int u = 0; u < 5;u++){
+            printf(" %d,  ",vetmed[u]);
+            }*/
+        //depois do vetor organizado pega o valor do meio
+        mediana = vetmed[kk+1];
+        hist.vetor[i] = mediana;
+        //teste[i] = mediana;
+    }
+    DesenhaHistograma();
 }
 
 void CriaHistograma(){
@@ -241,13 +307,6 @@ void MontaVetor(int Px, int Py, int Vetor[9])
 {
 
 }
-// **********************************************************************
-// void Mediana()
-// **********************************************************************
-void Mediana()
-{
-
-}
 
 // **********************************************************************
 //  void init(void)
@@ -363,7 +422,7 @@ void keyboard ( unsigned char key, int x, int y )
         glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'm':
-        Mediana();
+        Mediana(9);
         glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     case 'c':
