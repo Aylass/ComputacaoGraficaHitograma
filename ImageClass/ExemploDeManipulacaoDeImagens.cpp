@@ -108,6 +108,51 @@ void DesenhaHistogramaRetangulo(){
     glutPostRedisplay();
 }
 
+boolean VerificaAtras(int i, int num){//verifica se é maior que os n numeros de traz
+    int aux = i - num/2;
+    int pos = i;
+    if(aux < 0) return false;
+    while(pos != aux){
+        if(hist.vetor[i]<hist.vetor[pos]){return false;}
+        pos--;
+    }
+    return true;
+}
+
+boolean VerificaFrente(int i, int num){ //verifica se é maior que os n numeros da frente
+    int aux = i + num/2;
+    int pos = i;
+    if(aux >= 255) return false;
+    while(pos != aux){
+        if(hist.vetor[i]<hist.vetor[pos]){return false;}
+        pos++;
+    }
+    return true;
+}
+
+void EncontraPico(int num){ //varia entre 10, 20, 30
+    PegaIntensidade();
+    NewImage.DrawLineH(15,15,NewImage.SizeX()-10,0,0,0); //eixo X
+    NewImage.DrawLineV(15,15,NewImage.SizeY()-10,0,0,0); //eixo Y
+    int intensidade;
+    int xinicial = 15;
+
+    for(int i = 1; i < 255;i++){
+        intensidade = hist.vetor[i];
+        intensidade = intensidade/5;
+        if(VerificaAtras(i,num)&&VerificaFrente(i,num)){//é um pico
+                if(intensidade>15){
+                    printf("Pico");
+                    NewImage.DrawLineV(xinicial,15,intensidade,60,200,0);
+                    xinicial = xinicial + 3;
+                }
+        }else if(intensidade>15){
+            NewImage.DrawLineV(xinicial,15,intensidade,0,0,0);
+            xinicial = xinicial + 3;
+        }
+    }
+     glutPostRedisplay();
+}
 
 void Mediana(int qantpixel){ //altera entre 3,7,9 pixels usados
     PegaIntensidade();
@@ -473,6 +518,10 @@ void keyboard ( unsigned char key, int x, int y )
         break;
     case 'r':
         CriaHistogramaRetangulo();
+        glutPostRedisplay();    // obrigatório para redesenhar a tela
+        break;
+    case 'p':
+        EncontraPico(30);
         glutPostRedisplay();    // obrigatório para redesenhar a tela
         break;
     default:
